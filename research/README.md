@@ -11,7 +11,7 @@ python3 research/model.py
 python3 -m unittest discover -s research/tests -v
 ```
 
-The self-contained `ps1_ticket_reliance.ipynb` can be uploaded to Google Colab and run with **Runtime > Run all**. Outputs are already embedded from local cell execution. Hosted Colab verification is pending.
+The self-contained ps1_ticket_reliance.ipynb can be opened in Google Colab and run with Runtime > Run all. The final notebook was rerun in Google Colab by the author, and the reported outputs were independently verified.
 
 Optional original-game replay (Node.js):
 
