@@ -1,54 +1,142 @@
-\clearpage\nobalance
+\clearpage
 \section*{Author Notes}
 \subsection*{Acknowledgements}
-I thank Prof. Luyao Zhang, Program Chair, and Prof. Ken Rogerson, Program Discussant, of the \emph{2056 Nobel and Turing Laureate Program Launch Workshop}, held at Duke Kunshan University on September 7, 2026. I also thank [full name of teammate 1] and [full name of teammate 2], my teammates in [session number and full session title], and the rest of the COMSCI/ECON 206 Autumn 2026 Session 1 class for their questions and discussion. [Identify a specific contribution you actually used.] I am responsible for the proposal and remaining errors.
+I thank Prof. Luyao Zhang, Program Chair, and Prof. Ken Rogerson, Program Discussant, of the \emph{2056 Nobel and Turing Laureate Program Launch Workshop}, September 7, 2026, Duke Kunshan University, IB 2050. I also acknowledge Tian Liang, Mustafa Ayub Khan, and the rest of the COMSCI/ECON 206 Autumn 2026 Session 1 class. Our Session D was \emph{Strategic AI: Trust, Collusion, and Adaptation in Repeated Interactions}. Tian Liang supplied the computer-science perspective on reputation and deception; Mustafa Ayub Khan supplied the economics perspective on heterogeneous agents and collusion. My role was Behavioral Scientist (Speaker 3). The shared workshop discussion informed these perspectives; no specific teammate comment is attributed without a dated record.
 \subsection*{Individual contribution}
-[State what you personally designed, implemented, wrote, checked, and adapted. Identify shared code or other contributions accurately. Program roles and feedback do not automatically imply coauthorship.]
+I developed the ticket-market question and supplied Intellectual Statement II, the existing game, field observations and earlier verification records. In the session document, my talk was \emph{Beyond Perfect Rationality: How Agents Adapt}, using bounded rationality and past experience to explain adaptation. The present formalization, code, diagram and prose were prepared with AI assistance from that material. The numerical implementation was developed with AI assistance after my initial independent reasoning. I subsequently reviewed the assumptions, code, and outputs and independently reran the final notebook in Google Colab. I am responsible for the final submitted claims and computations.
 
 \bibliographystyle{ACM-Reference-Format}\bibliography{references}
 \appendix
 \section{Technical details and reproducibility}
-[Supply derivations, inputs, package versions, seed where relevant, actual outputs and limitations. Identify repository commit, notebook cells and demo version. Include the fresh-run record.]
 \subsection{AI-use disclosure}
-AI-Assisted drafting and debugging are permitted after initial independent reasoning. Initial reasoning and handwritten reflection are Human-Only. Record tool/model, date, purpose, significant prompts, accepted or rejected suggestions, human changes and verification. If none, state ``No generative AI was used.'' The human author is responsible for every claim, citation and computation.
+The earlier Statement II discloses ChatGPT assistance with wording and initial HTML/CSS/JavaScript implementation, followed by the author's own testing. For this PS1, OpenAI-assisted tools were used after my initial independent reasoning to support drafting, model formalization, coding, debugging, figure development, and consistency checks. In particular, AI assistance helped distinguish retrospective outcome feedback from the ex-ante decision benchmark and supported implementation of the stochastic extension. All substantive research decisions remain the author's responsibility. I independently reviewed the model assumptions, equations, citations, code, and reported outputs, and reran the final notebook in Google Colab using ``Run all.'' The notebook executed successfully, and I verified the reported computational results against the generated outputs. Initial reasoning and handwritten reflections were completed independently, and peer-review activities remain Human-Only.
+
+\subsection{Scope, assumptions and derivation}
+The original Space is a client-side HTML/CSS/JavaScript educational game, with no real AI API or behavioral dataset. Its source was retrieved on September 12, 2026 and preserved in \path{research/legacy/index.html}; its SHA-256 and the original template commit are in \path{records/provenance.json}. The source calculates $p=N/(N+8Q+1)$, capped at $.98$. This is a designed scarcity index used as a probability in the extension, not an empirically calibrated estimate. $N$ denotes competing buyers; it is not a count of participants in an experiment.
+
+For $V>P>0$, define $b=V-P$ and $w=V-.9P$. The stochastic model draws $S\sim\mathrm{Bernoulli}(p)$ and a conditionally symmetric signal: buy advice indicates sell-out with conditional correctness $r$, and wait advice indicates availability with the same correctness. The synthetic adviser is a noisy state oracle, not a trained forecasting algorithm. Given signal $A$, buy utility is $b$, wait expected utility is $(1-p_A)w$. Comparing these gives the threshold $p_A\geq .1P/(V-.9P)$. Bayes' rule gives
+\[
+ \begin{aligned}p_B&=\frac{pr}{pr+(1-p)(1-r)},\\
+ p_W&=\frac{p(1-r)}{p(1-r)+(1-p)r}.\end{aligned}
+\]
+An impossible signal has zero probability and is skipped; ties select buy. For $r=.5$ the signal conveys no information, and for $r<.5$ a knowledgeable consumer can invert its evidence. A stated historical accuracy alone would not establish these conditional rates in a real market. The analysis explicitly assumes their equality and that the consumer knows them.
+
+The four state--signal outcomes are enumerated exactly. The Bayesian policy maximizes conditional expected payoff in each information set, so it weakly dominates always-follow and ignore-advice policies under the assumed model. This is an internal verification property, not evidence that consumers use Bayes' rule.
+
+\subsection{Original game versus PS1 extension}
+The original JavaScript hashes inputs using a sine-based deterministic function. Repeating identical inputs repeats the market and advice, rather than producing independent trials. Its advice correctness is judged relative to an optimal action \emph{after} the market state is known. Its payoffs are clipped at zero, even for an immediate purchase with $V<P$. The notebook restricts $V>P$ so the clipping does not affect comparisons. It preserves the 10\% discount and risk formula, but replaces deterministic outcomes with a stated probability model and evaluates choices using information available at the decision time.
+
+A retrospective correct-action label can disagree with an ex-ante optimal decision. At the default inputs, even wait advice with $r=.8$ leaves $p_W=.2803$; buying is optimal. If the eventual state is available, waiting would have yielded more \emph{after the fact}. This possibility does not make buying irrational before the outcome. Therefore the Space's reliance badge is retained as legacy feedback and must not be interpreted as a validated psychological measure of calibration.
+
+\subsection{Actual computation and evidence status}
+The executed grid has 25 conditions: $Q=40$, $P=150$, $V=220$, five values of $N$ and five values of $r$ listed in Section 3. The file \path{research/outputs/policy_comparison.csv} records all exact policy values and follow-policy regret. \path{summary.json} records the default-case calculation and Monte Carlo result. The extension's typical-case exact values are $70$ (ignore), $66.1656516443$ (follow), and $70$ (Bayes). With Python's \path{random.Random(206)}, 100,000 simulated rounds give $70$, $66.202$, and $70$. The simulation discrepancy for following is $.03635$ points. No estimated human effect or statistical significance is asserted.
+
+Five automated tests check the indifferent threshold, uninformative signals, perfect/inverted signals, policy dominance across probability boundaries, and invalid/boundary inputs. These tests passed in the recorded execution. The author subsequently reran the final notebook in Google Colab using ``Run all'' and independently verified that the notebook executed successfully and reproduced the reported computational outputs.
+
+\begin{table}[h]
+\caption{Earlier game outputs reported in Intellectual Statement II; preserved as prior records, not new human data.}
+\begin{tabularx}{\columnwidth}{@{}lYYY@{}}\toprule
+Case & Inputs & Action & Reported output\\\midrule
+Typical & $P=150,Q=40,N=500,r=.8$ & Follow buy & 61\% risk; 70 points; appropriate\\
+Low reliability & Same market, $r=.3$ & Follow wait & 61\% risk; 0 points; misreliance\\
+High competition & $Q=12,N=900,r=.6$ & Follow buy & 90\% risk; 70 points; appropriate\\\bottomrule
+\end{tabularx}
+\end{table}
+The prior document also reports rejection of $P=-100$ and successful generation at $P=1$. Those are prior author records. On September 12, the assistant also replayed the preserved JavaScript functions in a Node VM with inert DOM stubs: all three numerical cases above matched (see \path{legacy_replay.json}). This source-level check does not constitute a new browser UI test or reproduce the earlier human testing process.
+
+\subsection{Run instructions, dependencies and reuse}
+
+From the repository root, run \texttt{python3 research/model.py}, then \texttt{python3 -m unittest discover -s research/tests -v}. The calculation uses only the Python standard library. Alternatively, open \texttt{research/ps1\_ticket\_reliance.ipynb} through the Google Colab link in the Open Science Statement and select ``Run all.'' The notebook is self-contained and requires no GitHub checkout, credentials, paid API, or external dataset. The author independently completed this Colab run and verified the reported outputs.
+
 
 \section{Cumulative Intellectual Development}
-This proposal develops my Intellectual Statement II through the \emph{2056 Nobel and Turing Laureate Program Launch Workshop}, held on September 7, 2026 at Duke Kunshan University, IB 2050. Program Chair: Prof. Luyao Zhang. Program Discussant: Prof. Ken Rogerson. My session: [number and full title]. My role: [assigned role]. My teammates: [full name 1] and [full name 2]. I acknowledge their contributions and the rest of the class's questions and discussion.
+The relevant event is the \textit{2056 Nobel and Turing Laureate Program Launch Workshop}, September 7, 2026, Duke Kunshan University, IB 2050; Program Chair: Prof. Luyao Zhang; Program Discussant: Prof. Ken Rogerson. I participated in Session D, \textit{Strategic AI: Trust, Collusion, and Adaptation in Repeated Interactions}, as Behavioral Scientist (Speaker 3), with Tian Liang and Mustafa Ayub Khan. Our disciplinary foundations connected economics on heterogeneous AI agents and strategic interaction, computer science on trust and reputation, and behavioral science on bounded rationality and inductive reasoning.
 
-[Trace an earlier claim, a specific dated comment or piece of evidence, and the resulting revision with its intellectual consequence. Do not write only a chronological diary. Retain and revise the 2056 contribution statement.]
+\textbf{Week II before.}
+My initial ambition was ``For developing an AI-driven trading strategy that transformed financial decision-making and reshaped modern markets.'' I later narrowed this broad ambition to a human-centered question about appropriate reliance on AI under uncertainty. My earlier ticket game provided a feasible setting because it combines scarcity, risk, and AI advice while keeping the decision environment transparent and computationally inspectable.
 
-Appendix~\ref{app:abstract} contains the structured abstract in the cumulative reflection format. Update its eight rows and preserve the prior version. The Expected 2056 Nobel Prize and Turing Award contribution statement in Section 5 must follow from the foundation, current-era boundary and interdisciplinary milestones.
+\textbf{September 7 workshop development.}
+My behavioral-science contribution drew on Arthur's \textit{Inductive Reasoning and Bounded Rationality}, emphasizing that agents may adapt from experience rather than solve an idealized optimization problem. Tian Liang's computer-science contribution introduced trust and reputation based on interaction histories, while Mustafa Ayub Khan's economics contribution emphasized heterogeneous AI agents, repeated-price competition, and the fragility of collusive outcomes. The shared workshop paper, \textit{When Agents Lie: Premeditation, Persistence, and Exploitation in Repeated Games}, further highlighted the importance of distinguishing observed behavior from the mechanism that generated it.
+
+\textbf{September 9 cumulative reflection.}
+In my Human-Only Week 3 cumulative intellectual record, I wrote that the workshop introduced me to bounded rationality and changed my view of AI-assisted decisions: behavior may depend on limited information and learning, not only on AI reliability. I therefore revised my proposed 2056 contribution toward AI decision systems that combine economic incentives, computation, and human behavior to improve decisions under uncertainty.
+
+I also clarified the division and connection among the three disciplines: computer science provides a way to model AI reliability, economics defines risk and incentives, and behavioral science explains how people respond to them. My next discriminating test is to vary AI reliability and market risk in the ticket game and compare how often participants follow AI advice. In the accompanying proposal map, I recorded the resulting revision as adding bounded rationality and separating AI reliability from market risk.
+
+\textbf{September 12 draft development.} Source inspection showed deterministic outcomes and retrospective reliance labels. The proposed revision in Sections 2--3 and Appendix A adds an information-based expected-payoff benchmark, separates model assumptions from measurements, and records actual synthetic computations. This is an AI-assisted proposal for author review, not a fabricated workshop recommendation. Section 5 now connects the long-term framework to milestones and preserves financial decision support as an application needing further evidence.
 
 \section{Field and open-source inspiration}
-The \emph{Joint Interdisciplinary Field Trip---Technology, Computation, Culture \& Society in Action} took place on September 4, 2026. Record your actual observations at \textbf{Tencent Shanghai Office} and \textbf{Shanghai Science and Technology Museum}. State attendance accurately.
+Statement II records my first-hand visits to \textbf{Tencent Shanghai Office} and the \textbf{Shanghai Science and Technology Museum} on the course field-trip date, September 4, 2026. I attended both sites in person and took both photographs reproduced below. The images are retained as field-observation records without substantive content alteration.
 
-[Retain one industry photograph and one public-sector photograph from the earlier assignment. Each caption gives exact site, September 4, 2026 visit date, photographer/source, activity or exhibit, and relevance. Distinguish observation from interpretation; connect each setting to an open-source inspiration, subsequent research, and proposed practical value. If you lacked first-hand access, identify an attributed alternative instead of claiming attendance.]
+\begin{figure}[h]
+\centering\includegraphics[width=.94\columnwidth,height=4.4cm,keepaspectratio]{figures/field_0.jpg}
+\caption{Tencent Shanghai Office, September 4, 2026 field trip. Palm-print identification/payment exhibit. Source: Qianshuo Wang's Intellectual Statement II, Figure 1; photograph by Qianshuo (Aaron) Wang. The display motivates a distinction between technical performance and willingness to rely on technology.}
+\Description{Photograph retained from the author's earlier statement showing a Tencent palm-print recognition exhibit for identification and payment.}
+\end{figure}
+\textbf{Observation versus interpretation.} At the Shanghai Tencent office, I observed a contactless palm-identification / payment display that emphasizes accuracy, speed, and security. \textit{Interpretation:} The display suggested that perceived privacy and security risks may influence willingness to rely on a technology; it does not establish a privacy guarantee or measured adoption effect. MediaPipe~\cite{mediapipe} provided open-source inspiration for on-device perception and privacy-sensitive interaction design, but it does not establish consent, security, or trust. This motivates separating technical capability from reliance and treating privacy as a possible future mechanism rather than a measured PS1 variable.
 
-\section{Review response and revision record}
-[Retain v1, both peer reviews, author rebuttal, reviewer follow-up and v2. Use the three review themes: strengths to retain, constructive concerns to address, and questions to clarify. Explain your decisions, changed locations and actual verification results. Justify any retained approach or deferred work.]
+\begin{figure}[h]
+\centering\includegraphics[width=.94\columnwidth,height=4.4cm,keepaspectratio]{figures/field_1.jpg}
+\caption{Shanghai Science and Technology Museum, September 4, 2026 field trip. Fourier GRx humanoid robot exhibit. Source: Qianshuo Wang's Intellectual Statement II, Figure 2; photograph by Qianshuo (Aaron) Wang. The exhibit motivates questions about trust in consequential assistance.}
+\Description{Photograph retained from the author's earlier statement showing the Fourier GRx humanoid robot beside exhibit information.}
+\end{figure}
+\textbf{Observation versus interpretation.} At the Shanghai Science and Technology Museum, I observed a humanoid-robot exhibit presenting companionship, workplace assistance, caregiving, and rehabilitation applications. \textit{Interpretation:} The exhibit suggested that willingness to rely on AI or robotic assistance may depend on perceived consequences for well-being, but the observation provides no evidence of clinical effectiveness or user trust. MMPose~\cite{mmpose} provided open-source inspiration for pose analysis, while reinforcing that technical performance alone cannot identify whether a person trusts or relies on assistance. This motivates keeping computational performance, subjective beliefs, and reliance conceptually separate.
+
+\textbf{Value pathway.} The Tencent observation motivates better communication of recommendation uncertainty, while the museum observation motivates consumer education about mistaken reliance. Statement II's SDG 8.2 productivity pathway remains a long-term aspiration; PS1 adds the required SDG 4 learning pathway by combining the game with the expected-payoff benchmark. No productivity or learning improvement has yet been measured.
+
+\section{Review response and revision record} The initial submission is due September 13, 2026; classroom review follows September 14, reviewer follow-up September 16, and revision September 20. At this draft stage, peer reviews, author responses, reviewer follow-up, and v2 are therefore pending. For each completed review, I will record the strength to retain, constructive concern, clarification question, author decision, resulting change, and verification outcome. No reviewer feedback has been fabricated in advance.
 
 \clearpage\onecolumn
-\section{Structured abstract and cumulative proposal map}\label{app:abstract}
-Update this structured abstract with each cumulative reflection. Replace each prompt with a brief, concrete entry and retain earlier versions. The first seven rows summarize the research; the final row records feedback and revision. Detailed optional prompts are in the separate Scaffolding Companion.
-\par\medskip
-\begin{table}[H]
-\caption{Appendix E structured abstract template; retain the eight-row proposal structure.}
-\label{tab:abstract-map}
-\renewcommand{\arraystretch}{1.18}
-\begin{tabularx}{\textwidth}{@{}p{0.27\textwidth}Y@{}}
+\section{Structured abstract and cumulative proposal map}
+
+\begin{table*}[ht]
+\caption{Current structured abstract and cumulative proposal map. Prior framing is retained in Intellectual Statement II.}
+\label{tab:structured-abstract}
+\begin{tabular}{p{0.25\textwidth} p{0.69\textwidth}}
 \toprule
 \textbf{Proposal element} & \textbf{Current statement / change} \\
 \midrule
-Background & State the strategic setting, established knowledge and unresolved issue. Cite the key foundation. \\
-Motivation and application & Explain why the issue matters now, the application scenario, affected people and the need the project addresses. \\
-Three connected questions & State one economics question, one computer-science question and one behavioral-science question. End with the integrated question that requires all three. \\
-Method and model assumptions & Specify players, actions or strategies, incentives, timing and information; then the model, baseline, computation and evidence needed. \\
-Results or expected results & State what was actually obtained and label its evidence type. Separately state expected results, the test and what finding would challenge the claim. \\
-Intellectual merits & Explain what is learned beyond the cited foundation and why integrating the three disciplines changes the answer. \\
-Practical impacts & Identify private- and public-sector value. Explain the open-access learning tool's intended contribution to SDG 4 and how its usefulness could be assessed. \\
-Feedback received and revision made & Name the dated feedback source, earlier claim, actual revision and intellectual consequence. Preserve prior versions; state accurately if feedback is pending. \\
-\bottomrule
-\end{tabularx}
-\end{table}
-\noindent Keep field observations, photographs, literature notes, open-source inspirations and AI-use disclosure in the supporting sections. Distinguish observation, interpretation and proposed future evidence. The Open Science Statement groups GitHub and Colab; the Statement of Contribution to the UN's SDGs groups the Hugging Face learning tool.
 
+\textbf{Background}
+&
+Limited ticket supply makes immediate purchase compete with a possible discount and sell-out. Bounded rationality motivates examining how consumers use AI advice under uncertainty; appropriate reliance requires a defined economic benchmark.
+\\
+
+\textbf{Motivation and application}
+&
+AI advice appears alongside scarcity cues in platform-mediated purchasing scenarios. Consumers, platforms, and educators need to distinguish useful AI advice from decisions that merely appear correct after the outcome.
+\\
+
+\textbf{Three connected questions}
+&
+Economics: when does following AI advice increase expected consumer surplus as competition for scarce tickets changes? Computation: can an inspectable simulator distinguish advice-following from posterior-optimal choice and quantify regret? Behavior: does reliance reflect trust in AI advice or beliefs about sell-out risk? Integrated question: when is AI reliance economically justified given competition, advice reliability, and human beliefs?
+\\
+
+\textbf{Method and model assumptions}
+&
+One focal consumer chooses Buy or Wait after observing market inputs and a noisy recommendation. Other buyers affect an exogenous scarcity probability. Assume $V>P>0$, risk neutrality, a 10\% waiting discount, and a known symmetric signal. The computational benchmark compares always-follow, ignore-advice, and Bayesian posterior-optimal policies across 25 synthetic conditions.
+\\
+
+\textbf{Results or expected results}
+&
+Executed synthetic results: in the default case, always-follow yields expected payoff 66.1657 versus 70 for the posterior-optimal policy (regret 3.8343); a seeded 100,000-round simulation gives 66.202. These are computational results, not human evidence. Human reliance patterns and educational gains remain untested; belief-based explanations could challenge the proposed trust mechanism.
+\\
+
+\textbf{Intellectual merits}
+&
+The proposed contribution connects market incentives, inspectable computation, and behavioral explanations of AI reliance. It separates ex-ante decision quality from ex-post correctness and distinguishes beliefs about market risk from beliefs about AI quality. It does not yet establish an empirical behavioral mechanism or a novel general theorem.
+\\
+
+\textbf{Practical impacts}
+&
+Potential platform value lies in communicating recommendation uncertainty together with its economic consequences. Public value comes from an open-access SDG~4 learning tool that combines predictions, game outcomes, and expected-payoff benchmarks. Learning gains, financial-market transfer, and productivity effects require separate validation.
+\\
+
+\textbf{Feedback received and revision made}
+&
+Session D introduced bounded rationality, trust and reputation, and strategic competition as complementary perspectives. My September 9 Human-Only reflection recorded the key revision: separate AI reliability from market risk and connect economics, computation, and behavioral science. I therefore revised the project from simple advice-following toward a Bayesian economic benchmark plus a proposed behavioral test distinguishing trust from sell-out beliefs. I subsequently reran and independently verified the final computational notebook in Google Colab.
+\\
+
+\bottomrule
+\end{tabular}
+\end{table*}
