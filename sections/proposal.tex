@@ -1,50 +1,57 @@
 \section{Three connected research questions}
-Start from Intellectual Statement II. State the background, motivation, application, affected stakeholders, and strategic tension. Explain your proposal's relationship to a Nobel-recognized foundation and current research.
+In a limited concert-ticket market, a consumer must choose between buying immediately to secure a ticket and waiting for a possible discount while risking sell-out. This creates a strategic scarcity problem because the value of waiting depends not only on the consumer's own choice but also on competition from other buyers for limited supply. My Intellectual Statement II introduced AI advice into this setting: \emph{greater reliance need not produce better decisions}. Consumers, ticket platforms, and consumer-protection educators therefore need a benchmark for distinguishing justified reliance from advice-following that only appears successful after the outcome is known. Simon's bounded rationality~\cite{simon1955} motivates comparing feasible human reasoning with an ideal decision benchmark. Prior studies examine costly reliance~\cite{klingbeil2024}, trust dynamics~\cite{li2023}, and individual differences in AI-assisted judgment~\cite{pearson2026}, but they do not jointly connect market scarcity, advice reliability, and the welfare consequences of reliance in this ticket setting.
 
-\textbf{Q1---Economics:} [Which incentive, welfare, allocation, or institutional question needs an answer?]\par
-\textbf{Q2---Computation:} [Which model, algorithm, or evaluation makes the answer checkable?]\par
-\textbf{Q3---Behavior:} [Which belief, preference, reasoning limit, or learning mechanism could alter the prediction?]
+\textbf{Q1---Economics:} When does following AI advice increase a consumer's expected surplus, and how does this benchmark change as competition for limited tickets becomes more severe? \textbf{Q2---Computation:} Can an inspectable simulator distinguish simple advice-following from posterior-optimal choice and quantify the resulting regret? \textbf{Q3---Behavior:} Does observed reliance primarily reflect trust in the AI adviser or consumers' beliefs about ticket sell-out risk? The integrated question is when AI reliance is economically justified once market competition, advice reliability, and human beliefs are considered together. Figure~\ref{fig:teaser} illustrates how these three components connect.
 
-Explain why the answers depend on one another. Cite relevant economics, computer-science, and behavioral-science papers. Refer to Figure~\ref{fig:teaser} and explain how its mechanism connects your questions.
+\section{Answer to the economics question}
 
-\section{Answer to Q1: incentives and intellectual lineage}
-State a provisional answer or falsifiable hypothesis. Define players, actions versus strategies, payoffs, timing, and information. Name the solution concept and cite its defining paper, such as Nash~\cite{nash1950} or Bayesian equilibrium~\cite{harsanyi1968}. State what the benchmark establishes and what it leaves unresolved. Distinguish hypothetical, observed, estimated, and inherited quantities.
+The economic setting is a scarce-ticket allocation problem in which multiple consumers compete for a limited supply $Q$. Each consumer can buy immediately ($B$) or wait ($W$) for a 10\% discount, but waiting creates a risk that tickets sell out before purchase. The full strategic problem would make this risk depend endogenously on other consumers' choices. The current PS1 benchmark instead holds aggregate competition fixed at $N$ and solves the focal consumer's Bayesian best response. Thus, the computation is a tractable decision benchmark within a broader strategic environment, rather than a market-equilibrium estimate.
 
-\section{Answer to Q2: method and evaluation}
-Explain the computational part of Figure~\ref{fig:teaser}: inputs, algorithm, baseline, metric, and a meaningful mathematical or computational check. Specify your smallest feasible experiment and one modification to the baseline. State the actual outputs obtained; label every untested outcome as expected or planned. Your Colab notebook and interactive game must explain the same research question and identify any differences in model or scope.
+The focal consumer observes price $P$, value $V$, supply $Q$, competition $N$, and advice $A$ of stated reliability $r$. Other buyers enter through the exogenous sell-out probability
+$p=\min\{0.98,N/(N+8Q+1)\}$ inherited from my game. The consumer observes the advice, chooses $B$ or $W$, and then learns whether tickets sold out ($S=1$). A strategy maps the observed market inputs and advice into an action; $B$ or $W$ is one realized action. Assume $V>P>0$ and risk neutrality. Buying guarantees payoff $V-P$, while waiting gives zero if sold out and $V-0.9P$ otherwise.
 
-\clearpage\balance
-\section{Answer to Q3: behavior and competing explanations}
-Identify a behavioral mechanism and a competing explanation. Describe evidence that would discriminate between them. Explain how this changes the economic model or computational design. State the limits of what the planned evidence can identify. Synthetic or simulated results do not establish human or real AI behavior. Include a feasible next test and what finding would change your mind.
+The current solution benchmark is Bayesian expected-utility maximization~\cite{savage1972}. The stochastic extension assumes
+$\Pr(A=B\mid S=1)=\Pr(A=W\mid S=0)=r$,
+known to the consumer. For $A=W$,
+\[
+p_W=
+\frac{p(1-r)}
+{p(1-r)+(1-p)r},
+\qquad
+B \text{ is optimal iff }
+p_A \geq
+\frac{0.1P}{V-0.9P}.
+\]
+Here $p_A$ is the posterior sell-out risk; without advice the benchmark uses $p$. Therefore, even relatively reliable ``Wait'' advice can rationally be rejected when scarcity is sufficiently severe. This is a conditional mathematical prediction under the model, not an estimated market effect. The sell-out function and symmetric signal structure are assumed rather than measured. Endogenous competition among buyers, seller incentives, and heterogeneous risk preferences remain unresolved and motivate the next strategic extension.
 
+\section{Answer to the computational question}
+
+The notebook implements the computational component of Figure~\ref{fig:teaser} by exactly enumerating the two market states and two advice signals for each condition. Inputs are price $P$, value $V$, supply $Q$, competition $N$, and advice reliability $r$. The baseline policy always follows the advice; the main modification chooses the action with the larger posterior expected payoff, while ignoring advice provides an additional comparator. The primary metrics are expected surplus and regret relative to the posterior-optimal policy.
+
+The smallest experiment fixes $P=150$, $V=220$, $Q=40$ and compares the three policies; a 25-condition grid varies $N$ and $r$. At $N=500,r=.8$, always-follow yields expected surplus $66.1657$ versus $70$ for Bayes (regret $3.8343$); a seeded simulation gives $66.202$. These are synthetic, not human, results; tests appear in Appendix~A. The game shows retrospective outcomes, whereas the notebook evaluates ex-ante payoffs.
+
+These are obtained synthetic results, not evidence about human behavior. Threshold, signal-boundary, and policy-dominance checks pass; detailed outputs and tests are reported in Appendix~A. The existing interactive game uses deterministic scenario hashes and retrospective correctness, whereas the notebook replaces them with a stochastic signal model and ex-ante expected-payoff evaluation. Thus, the game illustrates the decision problem, while the notebook provides the reproducible benchmark used to evaluate it.
+
+\section{Answer to the behavioral question}
+
+My provisional behavioral mechanism is trust-driven acceptance of AI advice; the competing explanation is that consumers who follow the same advice hold higher subjective beliefs about ticket sell-out risk. Prior work on trust dynamics~\cite{li2023} motivates modeling reliance across repeated interactions, while Pearson et al.~\cite{pearson2026} show that attitudes toward AI and decision performance need not coincide. The existing game outputs cannot distinguish these mechanisms.
+
+A feasible pilot would hold $P$, $V$, and $Q$ fixed, randomize low/high competition $N$ and advice reliability $r\in\{.6,.8\}$, elicit perceived sell-out probability before and after advice, and record choices and expected regret. A second comparison would vary displayed competition while holding the supplied sell-out probability constant. If reliance changes mainly with stated AI reliability after accounting for elicited risk beliefs, the evidence would support a trust-based mechanism. If reliance is instead explained primarily by changes in sell-out beliefs, I would weaken the trust account and revise the behavioral model accordingly.
+
+The test cannot fully identify trust because belief reports may be noisy and residual choice differences may reflect misunderstanding or risk preferences; comprehension checks and a risk-preference measure are therefore needed. These behavioral mechanisms also affect the economic and computational design: subjective beliefs can replace the benchmark probability $p$ in the decision rule, allowing observed choices to be compared with the normative benchmark. Following my September 7 observation of Session C during the workshop, a later repeated-round experiment would randomize advice-success histories and test how reliance and beliefs update after experience. Human recruitment, sample size, and causal estimates remain planned.
 
 \section{Advanced development and future directions}
-Build on a named Nobel laureate's defining work and cite the award record. Identify an enduring human question---such as cooperation, fairness, trust or collective choice---and explain what the foundation establishes. Add a relevant Turing Award foundation where it clarifies the computational lineage.
 
-Explain what is distinctive about today's environment and technology, what current research leaves unresolved, and how your proposal advances that boundary. State the economic, computational and behavioral contributions and the new insight their integration makes possible.
+The enduring question is when people should delegate judgment under uncertainty. Simon's bounded rationality and 1978 Nobel recognition~\cite{simon1955,nobel1978}, together with Newell and Simon's 1975 Turing Award~\cite{newell1976,turing1975}, provide the foundation. Today's AI recommendations embed delegation directly in scarce decisions. The unresolved boundary is whether reliance reflects environmental-risk or AI-quality beliefs, and the welfare loss from mistaken reliance.
 
-\begin{table}[h]\caption{From laureate foundations to a new interdisciplinary contribution.}
-\begin{tabularx}{\columnwidth}{@{}p{1.6cm}Y@{}}\toprule
-\textbf{Horizon}&\textbf{Milestone and evidence}\\\midrule
-Foundation&[Laureate, defining work, enduring question and retained insight.]\\
-PS1&[Current-era setting, working baseline and meaningful check.]\\
-Next study&[New interdisciplinary explanation or design; a discriminating test.]\\
-Longer term&[Broader validation, benefits and reusable knowledge or tools.]\\
-2056&[Integrated contribution and evidence connecting it to the ambition below.]\\\bottomrule
-\end{tabularx}\end{table}
+Economically, I define an expected-surplus benchmark; computationally, I make it inspectable and reproducible; behaviorally, I propose separating trust from market-risk beliefs. The next study tests these mechanisms with humans; longer-term work endogenizes strategic competition and repeated learning.
 
-\noindent\textbf{Expected 2056 Nobel Prize and Turing Award contribution statement.}
-By 2056, I aspire to be recognized for [theory, method or design] addressing [enduring human question] in [the current era's distinctive environment]. Building on [laureates and cited foundations], I will integrate [economics], [computer science] and [behavioral science] to advance [specific boundary]. Progress will be demonstrated by [milestones and evidence], with intellectual merits in [knowledge] and practical impacts for [people and institutions].
+\textbf{Expected 2056 Nobel Prize and Turing Award contribution statement.}
+By 2056, I aspire to develop an integrated economic, computational, and behavioral framework identifying when AI delegation improves decisions under uncertainty. Building on Simon and Newell, the framework would combine welfare benchmarks, reproducible computation, and validated behavioral mechanisms to distinguish beliefs about the environment from beliefs about AI quality across consequential settings.
 
 \subsection*{Open Science Statement}
-\textbf{GitHub:} \GitHubLink\\
-\textbf{Google Colab:} \ColabLink\par
-[Identify available code, data or synthetic inputs, notebook, dependencies, outputs, release/commit and actual reuse terms. Give the shortest reproducible run instruction.]
+
+The project materials are available in the \GitHubLink, with an executable version in the \ColabLink. The repository contains the ticket-advice model, executable notebook, tests, synthetic outputs, and preserved original game. The model uses only the Python standard library; from the repository root, run \texttt{python3 research/model.py}, or open the notebook in Colab and select ``Run all.'' The submitted version is identified by commit \texttt{\CommitHash}. Reuse terms and detailed reproducibility records are reported in Appendix~A.
 
 \subsection*{Statement of Contribution to the UN's SDGs}
-\textbf{Hugging Face:} \DemoLink\\
-Through an open-access [tool], this project aims to support \textbf{SDG 4---Quality Education}~\cite{sdg4} by helping [audience] learn [concept] through [interaction]. [State access needs, learning instructions and a feasible evaluation.] Distinguish the resource released from benefits that remain to be evaluated.
-
-\subsection*{Submission milestones}
-First draft: September 13, 2026, 11:00 P.M. Beijing time (UTC+8). Class review: September 14. Proposed: rebuttal September 16 and revised submission September 20, both at 11:00 P.M. Update Appendix~\ref{app:abstract} with each reflection and revision.
-
+The interactive learning tool is available through the \DemoLink. The open-access game supports a proposed \textbf{SDG 4---Quality Education}~\cite{sdg4} lesson for introductory students: predict a choice, change competition or reliability, then compare outcome feedback with the notebook's expected-payoff benchmark. Access requires a browser and internet; the static game needs no API key. A pre/post explanation task could assess whether students distinguish good decisions from lucky outcomes. The resource exists; learning gains remain untested.
