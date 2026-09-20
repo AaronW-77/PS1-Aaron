@@ -6,24 +6,35 @@
 
 ## Project Overview
 
-This project studies when following AI advice is economically justified in a limited concert-ticket market. A consumer chooses whether to buy a ticket immediately or wait for a possible discount while facing sell-out risk. The project connects three perspectives:
+This project studies when following AI advice is economically justified in a limited concert-ticket market. A consumer chooses whether to buy a ticket immediately or wait for a possible discount while facing sell-out risk.
+
+The project connects three perspectives:
 
 - **Economics:** how ticket scarcity and competition affect expected consumer surplus.
-- **Computer Science:** how AI advice reliability affects the quality of recommendations.
-- **Behavioral Science:** whether reliance reflects trust in AI or beliefs about sell-out risk.
+- **Computer Science:** how AI advice reliability affects recommendation quality and decision-making under uncertainty.
+- **Behavioral Science:** whether observed reliance reflects prior sell-out beliefs, rational updating from informative advice, or source trust.
 
-The computational benchmark compares three policies: **follow AI advice**, **ignore AI advice**, and a **Bayesian posterior-optimal policy**.
+The computational benchmark compares three policies:
+
+- **Always follow AI advice**
+- **Ignore AI advice**
+- **Bayesian posterior-optimal choice**
+
+The project also tests whether the main policy comparison is robust to alternative assumptions about how market competition maps into sell-out risk.
 
 ## Repository Structure
 
 - `research/model.py` — ticket-advice model and exact calculations
-- `research/ps1_ticket_reliance.ipynb` — executable notebook
+- `research/ps1_ticket_reliance.ipynb` — original notebook
+- `research/ps1_ticket_reliance_v2.ipynb` — revised v2 notebook with robustness analysis
 - `research/tests/` — verification tests
-- `research/outputs/` — saved synthetic outputs
+- `research/outputs/` — saved synthetic outputs, including baseline and robustness results
 - `research/legacy/` — preserved original ticket-game implementation
+- `paper/` — v1 and v2 compiled PDFs and source ZIP files
+- `reviews/` — preserved peer-review materials
 - `sections/` — main proposal source
 - `appendices/` — supporting material
-- `figures/` — editable Draw.io teaser figure and exported PDF
+- `figures/` — editable Draw.io teaser figure and exported figure file
 - `main.tex` — main LaTeX document
 - `references.bib` — bibliography
 
@@ -39,9 +50,9 @@ Then run the verification tests:
 
     python3 -m unittest discover -s research/tests -v
 
-The notebook can also be opened in Google Colab and executed using **Runtime → Run all**.
+The revised notebook can also be opened in Google Colab and executed using **Runtime → Run all**.
 
-## Main Synthetic Output
+## Baseline Synthetic Results
 
 For the default condition:
 
@@ -61,6 +72,42 @@ A seeded 100,000-round simulation gives an always-follow payoff of approximately
 
 These are synthetic computational results, not human-subject findings.
 
+## Robustness Analysis
+
+The v2 analysis treats the original sell-out function as a modeling assumption rather than an empirically estimated relationship.
+
+The revised notebook evaluates:
+
+    p_k = min(0.98, N / (N + kQ + 1))
+
+for:
+
+    k ∈ {4, 8, 12}
+
+with `k = 8` as the baseline specification.
+
+Across **75 total robustness conditions**, the Bayesian posterior-optimal policy weakly dominates both the always-follow and ignore-advice policies under all three scarcity mappings.
+
+Mean always-follow regret is:
+
+- `k = 4`: **9.9901**
+- `k = 8`: **7.7649**
+- `k = 12`: **6.5998**
+
+The magnitude of regret changes across scarcity assumptions, but the main policy comparison remains robust.
+
+## Behavioral Interpretation
+
+Observed advice-following should not automatically be interpreted as trust in AI.
+
+The revised framework distinguishes three possible mechanisms:
+
+1. **Prior sell-out beliefs**
+2. **Rational updating from objectively informative advice**
+3. **Source trust or reputation**
+
+A proposed future behavioral experiment would vary AI source reputation while holding objective advice quality constant, and separately elicit participants’ sell-out beliefs before and after receiving advice.
+
 ## Interactive Game
 
 The corresponding interactive learning game is available on Hugging Face:
@@ -69,12 +116,22 @@ https://huggingface.co/spaces/dku-comsci-econ206-2026/Aaron-game
 
 ## Google Colab
 
-Executable notebook:
+Revised v2 notebook:
 
-https://colab.research.google.com/drive/1R6YTTeYsrbVoWV9td9uGGRFwsqSx7jsE?usp=sharing
+https://colab.research.google.com/github/AaronW-77/PS1-Aaron/blob/main/research/ps1_ticket_reliance_v2.ipynb
 
 ## Reproducibility Note
 
-The final notebook was independently rerun by the author in Google Colab using **Run all**, and the reported outputs were checked against the manuscript.
+The final v2 notebook was independently rerun by the author in Google Colab using **Run all**.
 
-This repository accompanies the PS1 research proposal for COMSCI/ECON 206.
+The execution verified:
+
+- the original 25-condition baseline grid
+- 75 robustness conditions across three scarcity mappings
+- posterior-policy dominance checks
+- threshold and signal-boundary checks
+- seeded Monte Carlo consistency
+
+The reported outputs were checked against the manuscript and saved repository outputs.
+
+This repository accompanies the revised PS1 research proposal for COMSCI/ECON 206.
