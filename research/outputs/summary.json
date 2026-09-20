@@ -1,0 +1,20 @@
+{
+  "evidence": "synthetic exact enumeration and Monte Carlo; not human behavior",
+  "seed": 206,
+  "trials": 100000,
+  "risk": 0.6090133982947625,
+  "no_advice_threshold": 0.17647058823529413,
+  "posterior_buy": 0.8616975441619992,
+  "posterior_wait": 0.2802690582959641,
+  "exact": {
+    "ignore": 70.0,
+    "follow": 66.16565164433618,
+    "bayes": 70.0
+  },
+  "monte_carlo": {
+    "ignore": 70.0,
+    "follow": 66.202,
+    "bayes": 70.0
+  },
+  "grid_cases": 25
+}

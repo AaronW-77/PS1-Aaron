@@ -1,0 +1,23 @@
+{
+  "4": {
+    "cases": 25,
+    "bayes_weakly_dominates_follow": true,
+    "bayes_weakly_dominates_ignore": true,
+    "mean_follow_regret": 9.990111515686959,
+    "max_follow_regret": 40.88171536286521
+  },
+  "8": {
+    "cases": 25,
+    "bayes_weakly_dominates_follow": true,
+    "bayes_weakly_dominates_ignore": true,
+    "mean_follow_regret": 7.764869257235965,
+    "max_follow_regret": 34.934889434889435
+  },
+  "12": {
+    "cases": 25,
+    "bayes_weakly_dominates_follow": true,
+    "bayes_weakly_dominates_ignore": true,
+    "mean_follow_regret": 6.5998188922993135,
+    "max_follow_regret": 30.366039102099933
+  }
+}
